@@ -1,9 +1,11 @@
 #pragma once
+#include <array>
 #include <random>
 
 class LL_model_BM{
     public:
         int n, cycle;
+        int* shuffled_I;
         double ***spins, **P2;
         bool *broken;
         int* neighbors_list;
@@ -23,8 +25,10 @@ class LL_model_BM{
         void H();
         void calculate_P2();
 
-        bool BarkerWatts_move();
+        void shuffle_I();
+        bool BarkerWatts_move(int I);
         void adjust_rotation_angle();
+        void BarkerWatts_cycle();
 
         bool switch_move();
         void switch_sites(int I, int J);

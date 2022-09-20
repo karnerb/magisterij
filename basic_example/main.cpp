@@ -34,7 +34,7 @@
     }
 } */
 
-void temperature_dependence_BW(int n, int nsteps, double Tstart, double Tend, std::string filename, std::string start_phase){
+/* void temperature_dependence_BW(int n, int nsteps, double Tstart, double Tend, std::string filename, std::string start_phase){
     LL_model model(n);
     Logger<LL_model> logger(filename, model);
     int Nthermal = 1000;
@@ -60,7 +60,7 @@ void temperature_dependence_BW(int n, int nsteps, double Tstart, double Tend, st
             logger.log_params();
         }
     }
-}
+} */
 
 void temperature_dependence_cluster(int n, int nsteps, double Tstart, double Tend, std::string filename, std::string start_phase){
     LL_model model(n);
@@ -113,15 +113,12 @@ void temperature_dependence_BM(int n, int nsteps, double Tstart, double Tend, st
         model.cycle=0;
         model.thermalize_BarkerWatts(Nthermal);
         for (int j=0; j<N; j++){
-            for (int k=0; k<(model.n*model.n*model.n); k++){
-                model.BarkerWatts_move();
-            }
+            model.BarkerWatts_cycle();
             if (switchmove){
             for (int k=0; k<model.n*model.n; k++){
                 switch_moves++;
                 if (model.switch_move()) successful_switch_moves++;
             }}
-            model.cycle++;
             model.calculate_P2();
             model.H();
             //std::cout << model.E << "\n";

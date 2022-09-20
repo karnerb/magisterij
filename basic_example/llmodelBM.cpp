@@ -12,8 +12,10 @@ LL_model_BM::LL_model_BM(int n) : n(n){
     P2 = new double* [dim];
     broken = new bool [n*n*n];
     neighbors_list = new int[n_neighbors];
+    shuffled_I = new int[n*n*n];
     for (int i=0; i<dim; i++) P2[i] = new double [dim];
     for (int I=0; I<n*n*n; I++){
+        shuffled_I[I]=I;
         broken[I] = false;
         spins[I] = new double* [2];
     }
@@ -26,6 +28,16 @@ LL_model_BM::LL_model_BM(int n) : n(n){
     generator.seed(123213);
     random_I = std::uniform_int_distribution <int>(0,n*n*n-1);
     p = std::uniform_real_distribution<double>(0,1);
+}
+
+void LL_model_BM::shuffle_I(){
+    int temp, j;
+    for (int i=n*n*n-1; i>0; i--){
+        temp=shuffled_I[i];
+        j = random_I(generator);
+        shuffled_I[i]=shuffled_I[j];
+        shuffled_I[j]=temp;
+    }
 }
 
 void LL_model_BM::set_beta(double beta){
@@ -128,8 +140,8 @@ void LL_model_BM::adjust_rotation_angle(){
     }
 }
 
-bool LL_model_BM::BarkerWatts_move(){
-    int I = random_I(generator); //random mesto
+bool LL_model_BM::BarkerWatts_move(int I){
+    //int I = random_I(generator); //random mesto
         
     //save the previous config
     double temp[2][dim];
@@ -213,6 +225,17 @@ bool LL_model_BM::BarkerWatts_move(){
     return true;
     }
 
+void LL_model_BM::BarkerWatts_cycle(){
+    shuffle_I();
+    int accepted = 0;
+    for (int i=0; i<n*n*n; i++){
+        if (BarkerWatts_move(shuffled_I[i])) accepted++;
+    }
+    acceptance_rate = (double) accepted / (n*n*n);
+    adjust_rotation_angle();
+    cycle++;
+}
+
 bool LL_model_BM::switch_move(){
     //select a random site and attempt to switch with a random neighbor site
     int I = random_I(generator);
@@ -244,7 +267,6 @@ bool LL_model_BM::switch_move(){
     }
     return true;
 }
-
 
 void LL_model_BM::switch_sites(int I, int J){
     
@@ -323,9 +345,7 @@ void LL_model_BM::thermalize_BarkerWatts(int N){
     //thermalizes the lattice using the BarkerWatts mo
     for (int i = 0; i<N; i++){
         int acc=0;
-        for (int j=0; j<n*n*n; j++){
-            if(BarkerWatts_move()) acc++;
-        }
+        BarkerWatts_cycle();
         acceptance_rate = (double) acc / (n*n*n);
         adjust_rotation_angle();
     }
