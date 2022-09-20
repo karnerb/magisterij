@@ -1,5 +1,4 @@
 #pragma once
-#include <array>
 #include <random>
 
 class LL_model_BM{
@@ -26,9 +25,10 @@ class LL_model_BM{
         void calculate_P2();
 
         void shuffle_I();
+
         bool BarkerWatts_move(int I);
-        void adjust_rotation_angle();
         void BarkerWatts_cycle();
+        void adjust_rotation_angle();
 
         bool switch_move();
         void switch_sites(int I, int J);
@@ -42,7 +42,5 @@ class LL_model_BM{
         void align_molecule(int I);
 
         void break_molecules(int count);
-
-        
 
 };

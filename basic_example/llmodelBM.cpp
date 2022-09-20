@@ -1,6 +1,7 @@
 //LL model with additional bent molecules
 #include <iostream>
 #include "llmodelBM.h"
+#include "rotation3d.cpp"
 #define dim 3
 #define eps 1
 #define n_neighbors 6
@@ -24,13 +25,14 @@ LL_model_BM::LL_model_BM(int n) : n(n){
         spins[I][1] = new double[dim];
 
     }
-
+    //TODO:: add time dependent seeding
     generator.seed(123213);
     random_I = std::uniform_int_distribution <int>(0,n*n*n-1);
     p = std::uniform_real_distribution<double>(0,1);
 }
 
 void LL_model_BM::shuffle_I(){
+    //randomly shuffles elements of shuffled_I[n*n*n]
     int temp, j;
     for (int i=n*n*n-1; i>0; i--){
         temp=shuffled_I[i];
@@ -45,6 +47,7 @@ void LL_model_BM::set_beta(double beta){
 }
 
 double LL_model_BM::dot(int I, int i,  int J, int j){
+    //dot product of spins[I][i] and spins[J][j]
     double sum = 0.0;
     for (int k=0; k<dim; k++){
         sum+=spins[I][i][k]*spins[J][j][k];
@@ -53,6 +56,7 @@ double LL_model_BM::dot(int I, int i,  int J, int j){
 }
 
 double LL_model_BM::E_IJ(int I, int J){
+    //interaction energy of sites I, J
     return - ( 1.5 * 0.25 * (dot(I,0,J,0)*dot(I,0,J,0) + dot(I,1,J,0)*dot(I,1,J,0) + dot(I,0,J,1)*dot(I,0,J,1) + dot(I,1,J,1)*dot(I,1,J,1)) - 0.5);
 }
 
@@ -60,7 +64,7 @@ void LL_model_BM::neighbors(int I){
     //define rules for neighbors here
     //updates neighbor_list with indeces
     //of neighbors of site I
-    
+    //TODO: implement a neighbor list for all sites
     //simple cubic here
     if (sc){
         int k = I/(n*n);
@@ -88,6 +92,7 @@ void LL_model_BM::neighbors(int I){
 }
 
 double LL_model_BM::E_neighbors(int I){
+    //sums the interaction energies with nearest neighbors
     double sum=0.0;
     neighbors(I);
     for (int i=0; i<n_neighbors; i++){
@@ -97,6 +102,7 @@ double LL_model_BM::E_neighbors(int I){
 }
 
 void LL_model_BM::H(){
+    //sums E_neighbors over all lattice sites
     double sum=0;
     for (int I=0;  I<n*n*n; I++){
         sum+=E_neighbors(I);
@@ -105,7 +111,7 @@ void LL_model_BM::H(){
 }
 
 void LL_model_BM::calculate_P2(){
-
+        //calculates the matrix elements of P2 matrix order parameter
        for(int i=0; i<3; i++){
             for(int j=0; j<3; j++){
                 P2[i][j] = 0.0;            
@@ -130,6 +136,7 @@ void LL_model_BM::calculate_P2(){
 }
 
 void LL_model_BM::adjust_rotation_angle(){
+    //adjusts the rotation angle so that approximately half of proposed moves are accepted
     if (acceptance_rate>0.5){
         rotation_angle = rotation_angle + 0.1;
         if (rotation_angle > 2*pi) rotation_angle = 2*pi;
@@ -140,9 +147,7 @@ void LL_model_BM::adjust_rotation_angle(){
     }
 }
 
-bool LL_model_BM::BarkerWatts_move(int I){
-    //int I = random_I(generator); //random mesto
-        
+bool LL_model_BM::BarkerWatts_move(int I){    
     //save the previous config
     double temp[2][dim];
     for (int i=0; i<dim; i++){
@@ -153,7 +158,7 @@ bool LL_model_BM::BarkerWatts_move(int I){
     //save the energy of current config
     double Eold = E_neighbors(I);
 
-    //generate a random rotation and rotate vector at site I
+    //generate a random unit vector ((n0,n1,n2)) and angle of rotation (gama)
     double theta = acos(2*p(generator)-1);
     double phi = 2 * pi * p(generator);
 
@@ -162,56 +167,19 @@ bool LL_model_BM::BarkerWatts_move(int I){
     double n2 = cos(theta);
         
     double gama = rotation_angle*(p(generator)-0.5);
-
-    double R00 = (cos(gama)+n0*n0*(1-cos(gama)));
-    double R01 = (n0*n1*(1-cos(gama)) - n2 * sin(gama));
-    double R02 = (n0*n2*(1-cos(gama))+n1*sin(gama));
-
-    double R10 = (n0*n1*(1-cos(gama))+n2*sin(gama));
-    double R11 = (cos(gama) + n1*n1*(1-cos(gama)));
-    double R12 = (n1*n2*(1-cos(gama))-n0*sin(gama)); 
-
-    double R20 = (n0*n2*(1-cos(gama))-n1*sin(gama));
-    double R21 = (n1*n2*(1-cos(gama))+ n0*sin(gama));
-    double R22 = (cos(gama)+ n2*n2*(1-cos(gama)));
-
-    //rotate the spin
-    spins[I][0][0] = R00 * temp[0][0] +
-                  R01 * temp[0][1] +
-                  R02 * temp[0][2];
-
-    spins[I][0][1] = R10 * temp[0][0] +
-                  R11 * temp[0][1] +
-                  R12 * temp[0][2];
-
-    spins[I][0][2] = R20 * temp[0][0] +
-                  R21 * temp[0][1] +   
-                  R22 * temp[0][2];
-
-    spins[I][1][0] = R00 * temp[1][0] +
-                  R01 * temp[1][1] +
-                  R02 * temp[1][2];
-
-    spins[I][1][1] = R10 * temp[1][0] +
-                  R11 * temp[1][1] +
-                  R12 * temp[1][2];
-
-    spins[I][1][2] = R20 * temp[1][0] +
-                  R21 * temp[1][1] +   
-                  R22 * temp[1][2];
-
     
+    //rotate the spin
+    rotation3D(spins[I][0], n0, n1, n2, gama);
+    rotation3D(spins[I][1], n0, n1, n2, gama);
         
     //calculate new energy 
     double Enew = E_neighbors(I);
 
     //Metropolis acceptance criterion
     //if Enew < Eold always accept 
-    //else 
     if (Enew > Eold){
         double acceptance_p = p(generator);
-        //reject with probability accoring to Metropolis
-        //and keep the previous config
+        //reject with probability according to Metropolis and keep the previous config
         if (acceptance_p > exp(-beta * (Enew-Eold))){
             spins[I][0][0] = temp[0][0];
             spins[I][0][1] = temp[0][1];
@@ -226,6 +194,7 @@ bool LL_model_BM::BarkerWatts_move(int I){
     }
 
 void LL_model_BM::BarkerWatts_cycle(){
+    //attempts a BarkerWatts move for each lattice site
     shuffle_I();
     int accepted = 0;
     for (int i=0; i<n*n*n; i++){
@@ -299,13 +268,10 @@ void LL_model_BM::switch_sites(int I, int J){
 }
 
 void LL_model_BM::break_molecules(int count){
-    while (count > 0){
-        int I = random_I(generator);
-        if (!broken[I]){
-            break_molecule(I);
-            broken[I] = true;
-            count = count - 1;
-        }
+    //breaks int count molecules
+    shuffle_I();
+    for (int i=0; i<count; i++){
+        break_molecule(shuffled_I[i]);
     }
 }
 
@@ -342,7 +308,7 @@ void LL_model_BM::initialize_lattice_parallel(){
 }
 
 void LL_model_BM::thermalize_BarkerWatts(int N){
-    //thermalizes the lattice using the BarkerWatts mo
+    //thermalizes the lattice using the BarkerWatts cycle
     for (int i = 0; i<N; i++){
         int acc=0;
         BarkerWatts_cycle();
@@ -353,134 +319,44 @@ void LL_model_BM::thermalize_BarkerWatts(int N){
 
 void LL_model_BM::break_molecule(int I){
 
-    if (broken[I]) std::cout << "BIG PROBLEM!";
+    if (broken[I]) std::cout << "molecule already broken!";
     //choose a random perpendicular axis of rotation and rotate the two vectors by angle +-alpha/2
 
     //choose a random axis
     //first find a vector perpendicular to spins[I][0] using the cross product with x system axis
-
-    double v0 = 0;
-    double v1 = spins[I][0][2] / sqrt(spins[I][0][2]*spins[I][0][2]+spins[I][0][1]*spins[I][0][1]);
-    double v2 = -spins[I][0][1] / sqrt(spins[I][0][2]*spins[I][0][2]+spins[I][0][1]*spins[I][0][1]);
+    double v[3];
+    v[0] = 0;
+    v[1] = spins[I][0][2] / sqrt(spins[I][0][2]*spins[I][0][2]+spins[I][0][1]*spins[I][0][1]);
+    v[2] = -spins[I][0][1] / sqrt(spins[I][0][2]*spins[I][0][2]+spins[I][0][1]*spins[I][0][1]);
 
     //rotate the perpendicular vector by angle phi € [0,2pi) about spins[I][0] to get a random axis of rotation
 
     double n0 = spins[I][0][0];
     double n1 = spins[I][0][1];
-    double n2 = spins[I][0][2];
-        
+    double n2 = spins[I][0][2];    
     double gama = 2*p(generator)*pi;
 
-    double R00 = (cos(gama)+n0*n0*(1-cos(gama)));
-    double R01 = (n0*n1*(1-cos(gama)) - n2 * sin(gama));
-    double R02 = (n0*n2*(1-cos(gama))+n1*sin(gama));
+    rotation3D(v, n0, n1, n2, gama);
 
-    double R10 = (n0*n1*(1-cos(gama))+n2*sin(gama));
-    double R11 = (cos(gama) + n1*n1*(1-cos(gama)));
-    double R12 = (n1*n2*(1-cos(gama))-n0*sin(gama)); 
-
-    double R20 = (n0*n2*(1-cos(gama))-n1*sin(gama));
-    double R21 = (n1*n2*(1-cos(gama))+ n0*sin(gama));
-    double R22 = (cos(gama)+ n2*n2*(1-cos(gama)));
-
-    double temp[3];
-    temp[0]=v0;
-    temp[1]=v1;
-    temp[2]=v2;
-
-    v0 = R00 * temp[0] +
-         R01 * temp[1] +
-         R02 * temp[2];
-
-    v1 = R10 * temp[0] +
-         R11 * temp[1] +
-         R12 * temp[2];
-
-    v2 = R20 * temp[0] +
-         R21 * temp[1] +   
-         R22 * temp[2];
-
-    //rotate the spins by -+alpha/2 about (v0, v1, v2)
-
+    
+    //rotate the spins by +-alpha/2 about (v0, v1, v2)
     double alpha = pi / 6;
-
-    n0 = v0;
-    n1 = v1;
-    n2 = v2;
-        
+    n0 = v[0];
+    n1 = v[1];
+    n2 = v[2];        
     gama = alpha/2;
 
-    R00 = (cos(gama)+n0*n0*(1-cos(gama)));
-    R01 = (n0*n1*(1-cos(gama)) - n2 * sin(gama));
-    R02 = (n0*n2*(1-cos(gama))+n1*sin(gama));
+    rotation3D(spins[I][0], n0, n1, n2, gama);
+    rotation3D(spins[I][1], n0, n1, n2, -gama);
 
-    R10 = (n0*n1*(1-cos(gama))+n2*sin(gama));
-    R11 = (cos(gama) + n1*n1*(1-cos(gama)));
-    R12 = (n1*n2*(1-cos(gama))-n0*sin(gama)); 
-
-    R20 = (n0*n2*(1-cos(gama))-n1*sin(gama));
-    R21 = (n1*n2*(1-cos(gama))+ n0*sin(gama));
-    R22 = (cos(gama)+ n2*n2*(1-cos(gama)));
-
-    double temp1[3];
-    temp1[0]=spins[I][0][0];
-    temp1[1]=spins[I][0][1];
-    temp1[2]=spins[I][0][2];
-
-    //rotate the spin
-    spins[I][0][0] = R00 * temp1[0] +
-                     R01 * temp1[1] +
-                     R02 * temp1[2];
-
-    spins[I][0][1] = R10 * temp1[0] +
-                     R11 * temp1[1] +
-                     R12 * temp1[2];
-
-    spins[I][0][2] = R20 * temp1[0] +
-                     R21 * temp1[1] +   
-                     R22 * temp1[2];
-
-
-    gama = -alpha/2;
-
-    R00 = (cos(gama)+n0*n0*(1-cos(gama)));
-    R01 = (n0*n1*(1-cos(gama)) - n2 * sin(gama));
-    R02 = (n0*n2*(1-cos(gama))+n1*sin(gama));
-
-    R10 = (n0*n1*(1-cos(gama))+n2*sin(gama));
-    R11 = (cos(gama) + n1*n1*(1-cos(gama)));
-    R12 = (n1*n2*(1-cos(gama))-n0*sin(gama)); 
-
-    R20 = (n0*n2*(1-cos(gama))-n1*sin(gama));
-    R21 = (n1*n2*(1-cos(gama))+ n0*sin(gama));
-    R22 = (cos(gama)+ n2*n2*(1-cos(gama)));
-
-    double temp2[3];
-    temp2[0]=spins[I][1][0];
-    temp2[1]=spins[I][1][1];
-    temp2[2]=spins[I][1][2];
-
-    //rotate the spin
-    spins[I][1][0] = R00 * temp2[0] +
-                     R01 * temp2[1] +
-                     R02 * temp2[2];
-
-    spins[I][1][1] = R10 * temp2[0] +
-                     R11 * temp2[1] +
-                     R12 * temp2[2];
-
-    spins[I][1][2] = R20 * temp2[0] +
-                     R21 * temp2[1] +   
-                     R22 * temp2[2];
-
-
+    broken[I]=true;
    //std::cout << spins[I][1][0]*spins[I][0][0] + spins[I][1][1]*spins[I][0][1] + spins[I][1][2]*spins[I][0][2]; 
 
 }
 
 void LL_model_BM::align_molecule(int I){
     //aligns a broken molecule
-
+    //sum the two vectors and normalize
     double temp[3];
     temp[0] = spins[I][0][0] + spins[I][1][0];
     temp[1] = spins[I][0][1] + spins[I][1][1];
@@ -496,7 +372,7 @@ void LL_model_BM::align_molecule(int I){
     spins[I][1][1] = temp[1]/norm;
     spins[I][1][2] = temp[2]/norm;
 
-    //std::cout << spins[I][1][0]*spins[I][0][0] + spins[I][1][1]*spins[I][0][1] + spins[I][1][2]*spins[I][0][2] << " "; 
+    broken[I] = false;
 }
 
 
