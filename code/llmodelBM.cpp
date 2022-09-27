@@ -1,5 +1,6 @@
 //LL model with additional bent molecules
 #include <iostream>
+#include <time.h>
 #include "llmodelBM.h"
 #include "rotation3d.cpp"
 #define dim 3
@@ -25,8 +26,8 @@ LL_model_BM::LL_model_BM(int n) : n(n){
         spins[I][1] = new double[dim];
 
     }
-    //TODO:: add time dependent seeding
-    generator.seed(123213);
+    
+    generator.seed(time(NULL));
     random_I = std::uniform_int_distribution <int>(0,n*n*n-1);
     p = std::uniform_real_distribution<double>(0,1);
 }
@@ -375,7 +376,30 @@ void LL_model_BM::align_molecule(int I){
     broken[I] = false;
 }
 
+void LL_model_BM::calculate_polar_order(){
+    //calculates the polar order parameter of the broken molecules P = sum_i ()
+    int broken_count=0;
+    double vector[3];
+    vector[0]=0;
+    vector[1]=0;
+    vector[2]=0;
+    double temp[3];
+    for (int I=0; I<n*n*n; I++){
+        if (broken[I]){
+            temp[0]=spins[I][0][0]+spins[I][1][0];
+            temp[1]=spins[I][0][1]+spins[I][1][1];
+            temp[2]=spins[I][0][2]+spins[I][1][2];
+            vector[0]=vector[0]-0.5*temp[0]+spins[I][0][0];
+            vector[1]=vector[1]-0.5*temp[1]+spins[I][0][1];
+            vector[2]=vector[2]-0.5*temp[2]+spins[I][0][2];
+            broken_count++;
+        }
+    if (broken_count>0) polar_order = sqrt(vector[0]*vector[0]+vector[1]*vector[1]+vector[2]*vector[2]) / broken_count;
+    else polar_order = 0.0;
+    }
 
+
+}
 
 
 

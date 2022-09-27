@@ -9,13 +9,15 @@ class LL_model_BM{
         bool *broken;
         int* neighbors_list;
         double E;
+        double polar_order;
         double beta, rotation_angle, acceptance_rate;
         std::default_random_engine generator;
         std::uniform_int_distribution<int> random_I;
         std::uniform_real_distribution<double> p;
 
         LL_model_BM(int n);
-
+        
+        void calculate_polar_order();
         void neighbors(int I);
         void set_beta(double beta);
         double dot(int I, int i, int J, int j);

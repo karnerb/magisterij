@@ -40,8 +40,7 @@ void LL_model::neighbors(int I){
     //define rules for neighbors here
     //updates neighbor_list with indeces
     //of neighbors of site I
-    
-    //simple cubic here
+    //simple cubic lattice with PBC here
     if (sc){
         int k = I/(n*n);
         int j = (I%(n*n))/n;

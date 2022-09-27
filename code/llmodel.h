@@ -7,6 +7,7 @@ class LL_model{
         int* neighbors_list;
         double **spins, **P2;
         double E;
+        double polar_order;
         double beta, rotation_angle, acceptance_rate;
         std::default_random_engine generator;
         std::uniform_int_distribution<int> random_I;
