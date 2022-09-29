@@ -45,4 +45,6 @@ class LL_model_BM{
 
         void break_molecules(int count);
 
+        int count_broken_molecules();
+
 };

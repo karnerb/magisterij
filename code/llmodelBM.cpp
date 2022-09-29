@@ -43,6 +43,12 @@ void LL_model_BM::shuffle_I(){
     }
 }
 
+int LL_model_BM::count_broken_molecules(){
+    int count = 0;
+    for (int i=0; i<n*n*n; i++) if (broken[i]) count++;
+    return count;
+}
+
 void LL_model_BM::set_beta(double beta){
     this -> beta = beta;
 }
