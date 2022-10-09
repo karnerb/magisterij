@@ -1,8 +1,11 @@
 #include "llmodel.h"
 #include "llmodelBM.h"
 #include "logger.h"
+#include "tests.cpp"
 #include <iostream>
 #include <chrono>
+#define size 5
+
 
 /* void temperature_dependence(){
     
@@ -130,6 +133,7 @@ void temperature_dependence_BM(int n, int nsteps, double Tstart, double Tend, st
     }
     }
 
+
 int main(void){
     
     //auto start = std::chrono::high_resolution_clock::now();
@@ -161,12 +165,26 @@ int main(void){
 
     //temperature_dependence_BM(30, 50, 1.1, 1.15, "BW_HEATUP.txt", "nematic", 0.0, false);
     //temperature_dependence_BM(30, 50, 1.15, 1.1, "BW_cooldown.txt", "isotropic", 0.0, false);
-    temperature_dependence_cluster(10, 30, 1.115, 1.129, "cluster10heatup.txt", "nematic");
-    temperature_dependence_cluster(10, 30, 1.129, 1.115, "cluster10cooldown.txt", "isotropic");
-    std::cout << " finished 10" << std::flush;
-    temperature_dependence_cluster(20, 30, 1.115, 1.129, "cluster20heatup.txt", "nematic");
-    temperature_dependence_cluster(20, 30, 1.129, 1.115, "cluster20cooldown.txt", "isotropic");
-    std::cout << " finished 20" << std::flush;
-    temperature_dependence_cluster(30, 30, 1.115, 1.129, "cluster30heatup.txt", "nematic");
-    temperature_dependence_cluster(30, 30, 1.129, 1.115, "cluster30cooldown.txt", "isotropic");
+    //temperature_dependence_cluster(23, 30, 1.115, 1.129, "cluster23heatup.txt", "nematic");
+    //temperature_dependence_cluster(23, 30, 1.129, 1.115, "cluster23cooldown.txt", "isotropic");
+    //std::cout << " finished 15" << std::flush;
+    //temperature_dependence_cluster(20, 30, 1.115, 1.129, "cluster20heatup.txt", "nematic");
+    //temperature_dependence_cluster(20, 30, 1.129, 1.115, "cluster20cooldown.txt", "isotropic");
+    //std::cout << " finished 20" << std::flush;
+    //temperature_dependence_cluster(30, 30, 1.115, 1.129, "cluster30heatup.txt", "nematic");
+    //temperature_dependence_cluster(30, 30, 1.129, 1.115, "cluster30cooldown.txt", "isotropic");
+    
+    auto start = std::chrono::high_resolution_clock::now();
+    reproduce_fabri_zannoni();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::minutes>(end-start);
+    std::cout << "time: " << duration.count() << "minutes\n";
+
+    start = std::chrono::high_resolution_clock::now();
+    reproduce_ceplak();
+    end = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::minutes>(end-start);
+    std::cout << "time: " << duration.count() << "minutes\n";
+
+
 }

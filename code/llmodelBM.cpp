@@ -347,7 +347,7 @@ void LL_model_BM::break_molecule(int I){
 
     
     //rotate the spins by +-alpha/2 about (v0, v1, v2)
-    double alpha = pi / 6;
+    double alpha = pi / 3;
     n0 = v[0];
     n1 = v[1];
     n2 = v[2];        
