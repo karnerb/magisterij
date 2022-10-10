@@ -3,7 +3,7 @@
 #include "llmodelBM.h"
 #include "logger.h"
 #define size 30
-#define kilo 2
+#define kilo 100
 
 void fabri_zannoni_heatup(){
     
@@ -124,7 +124,7 @@ void ceplak_heatup(double ratio, std::string filename, int sim_id){
     model_heatup.initialize_lattice_parallel();
     model_heatup.break_molecules((int) (ratio*size*size*size));
     model_heatup.set_beta(1.0/temperatures[0]);
-    model_heatup.thermalize_BarkerWatts(cycles[0]);
+    model_heatup.thermalize_BarkerWatts(cycles[0]*5);
 
 
     for (int i=0; i<temperatures_count; i++){
@@ -174,7 +174,7 @@ void ceplak_cooldown(double ratio, std::string filename, int sim_id){
     model_cooldown.initialize_lattice_random();
     model_cooldown.break_molecules((int) (ratio*size*size*size));
     model_cooldown.set_beta(1.0/temperatures[temperatures_count-1]);
-    model_cooldown.thermalize_BarkerWatts(cycles[temperatures_count-1]);
+    model_cooldown.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
 
     for (int i=temperatures_count-1; i>=0; i--){
         model_cooldown.set_beta(1.0/temperatures[i]);

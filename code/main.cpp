@@ -4,7 +4,7 @@
 #include "tests.cpp"
 #include <iostream>
 #include <chrono>
-#define size 10
+
 
 
 /* void temperature_dependence(){
