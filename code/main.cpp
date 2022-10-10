@@ -4,7 +4,7 @@
 #include "tests.cpp"
 #include <iostream>
 #include <chrono>
-#define size 5
+#define size 10
 
 
 /* void temperature_dependence(){
@@ -175,16 +175,11 @@ int main(void){
     //temperature_dependence_cluster(30, 30, 1.129, 1.115, "cluster30cooldown.txt", "isotropic");
     
     auto start = std::chrono::high_resolution_clock::now();
-    reproduce_fabri_zannoni();
+    reproduce_ceplak();
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::minutes>(end-start);
     std::cout << "time: " << duration.count() << "minutes\n";
 
-    start = std::chrono::high_resolution_clock::now();
-    reproduce_ceplak();
-    end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::minutes>(end-start);
-    std::cout << "time: " << duration.count() << "minutes\n";
 
 
 }

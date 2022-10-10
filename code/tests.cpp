@@ -71,7 +71,7 @@ void fabri_zannoni_cooldown(){
     model_cooldown.set_beta(1.0/temperatures[temperatures_count-1]);
     model_cooldown.thermalize_BarkerWatts(cycles[temperatures_count-1]);
 
-    for (int i=0; i<temperatures_count; i++){
+    for (int i=temperatures_count-1; i>=0; i--){
         model_cooldown.set_beta(1.0/temperatures[i]);
         model_cooldown.thermalize_BarkerWatts(cycles[i]);
         model_cooldown.cycle=0;
@@ -161,7 +161,7 @@ void ceplak_cooldown(double ratio, std::string filename){
     model_cooldown.set_beta(1.0/temperatures[temperatures_count-1]);
     model_cooldown.thermalize_BarkerWatts(cycles[temperatures_count-1]);
 
-    for (int i=0; i<temperatures_count; i++){
+    for (int i=temperatures_count-1; i>=0; i--){
         model_cooldown.set_beta(1.0/temperatures[i]);
         model_cooldown.thermalize_BarkerWatts(cycles[i]);
         model_cooldown.cycle=0;
