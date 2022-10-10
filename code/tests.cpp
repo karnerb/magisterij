@@ -2,8 +2,8 @@
 #include "llmodel.h"
 #include "llmodelBM.h"
 #include "logger.h"
-#define size 10
-#define kilo 1000
+#define size 30
+#define kilo 2
 
 void fabri_zannoni_heatup(){
     
@@ -21,7 +21,7 @@ void fabri_zannoni_heatup(){
                                       25, 15, 15, 15, 15, 15,
                                       15, 15, 15, 15, 15, 15};
     
-    for (int i=0; i<30; i++) cycles[i]=cycles[i]*kilo;
+    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
 
 
     LL_model_BM model_heatup(size);
@@ -62,7 +62,7 @@ void fabri_zannoni_cooldown(){
                                       25, 15, 15, 15, 15, 15,
                                       15, 15, 15, 15, 15, 15};
     
-    for (int i=0; i<30; i++) cycles[i]=cycles[i]*kilo;
+    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
 
 
     LL_model_BM model_cooldown(size);
@@ -93,23 +93,30 @@ void reproduce_fabri_zannoni(){
     t2.join();
 }
 
-void ceplak_heatup(double ratio, std::string filename){
+void ceplak_heatup(double ratio, std::string filename, int sim_id){
 
-    int temperatures_count = 30;
+    int temperatures_count = 70;
 
-    double temperatures[temperatures_count] = {1.0000, 1.0500, 1.1000, 1.1100, 1.1140, 1.1160,
-                                               1.1180, 1.1200, 1.1210, 1.1220, 1.1230, 1.1235,
-                                               1.1238, 1.1240, 1.1250, 1.1260, 1.1270, 1.1280,
-                                               1.1290, 1.1300, 1.1320, 1.1340, 1.1360, 1.1380,
-                                               1.1400, 1.1600, 1.1800, 1.2000, 1.2500, 1.3000};
+    double temperatures[temperatures_count] = {1.000000,  1.010000,  1.020000,  1.030000,  1.040000,  1.050000,
+                                               1.051754,  1.053509,  1.055263,  1.057018,  1.058772,  1.060526,
+                                               1.062281,  1.064035,  1.065789,  1.067544,  1.069298,  1.071053,
+                                               1.072807,  1.074561,  1.076316,  1.078070,  1.079825,  1.081579,
+                                               1.083333,  1.085088,  1.086842,  1.088596,  1.090351,  1.092105,
+                                               1.093860,  1.095614,  1.097368,  1.099123,  1.100877,  1.102632,
+                                               1.104386,  1.106140,  1.107895,  1.109649,  1.111404,  1.113158,
+                                               1.114912,  1.116667,  1.118421,  1.120175,  1.121930,  1.123684,
+                                               1.125439,  1.127193,  1.128947,  1.130702,  1.132456,  1.134211,
+                                               1.135965,  1.137719,  1.139474,  1.141228,  1.142982,  1.144737,
+                                               1.146491,  1.148246,  1.150000,  1.160000,  1.170000,  1.180000,
+                                               1.190000,  1.200000,  1.250000,  1.300000};
     
-    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50};
+    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50};
     
-    for (int i=0; i<30; i++) cycles[i]=cycles[i]*kilo;
+    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
 
 
     LL_model_BM model_heatup(size);
@@ -131,27 +138,35 @@ void ceplak_heatup(double ratio, std::string filename){
             model_heatup.calculate_polar_order();
             logger_heatup.log_params();
         }
+         if (sim_id==0) std::cout << "heatup: " << i << "/" << temperatures_count << "\r" << std::flush;
     }
     
 }
 
-void ceplak_cooldown(double ratio, std::string filename){
+void ceplak_cooldown(double ratio, std::string filename, int sim_id){
     
-    int temperatures_count = 30;
+    int temperatures_count = 70;
 
-    double temperatures[temperatures_count] = {1.0000, 1.0500, 1.1000, 1.1100, 1.1140, 1.1160,
-                                               1.1180, 1.1200, 1.1210, 1.1220, 1.1230, 1.1235,
-                                               1.1238, 1.1240, 1.1250, 1.1260, 1.1270, 1.1280,
-                                               1.1290, 1.1300, 1.1320, 1.1340, 1.1360, 1.1380,
-                                               1.1400, 1.1600, 1.1800, 1.2000, 1.2500, 1.3000};
+    double temperatures[temperatures_count] = {1.000000,  1.010000,  1.020000,  1.030000,  1.040000,  1.050000,
+                                               1.051754,  1.053509,  1.055263,  1.057018,  1.058772,  1.060526,
+                                               1.062281,  1.064035,  1.065789,  1.067544,  1.069298,  1.071053,
+                                               1.072807,  1.074561,  1.076316,  1.078070,  1.079825,  1.081579,
+                                               1.083333,  1.085088,  1.086842,  1.088596,  1.090351,  1.092105,
+                                               1.093860,  1.095614,  1.097368,  1.099123,  1.100877,  1.102632,
+                                               1.104386,  1.106140,  1.107895,  1.109649,  1.111404,  1.113158,
+                                               1.114912,  1.116667,  1.118421,  1.120175,  1.121930,  1.123684,
+                                               1.125439,  1.127193,  1.128947,  1.130702,  1.132456,  1.134211,
+                                               1.135965,  1.137719,  1.139474,  1.141228,  1.142982,  1.144737,
+                                               1.146491,  1.148246,  1.150000,  1.160000,  1.170000,  1.180000,
+                                               1.190000,  1.200000,  1.250000,  1.300000};
     
-    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50,
-                                      50, 50, 50, 50, 50, 50};
+    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                                      50, 50};
 
-    for (int i=0; i<30; i++) cycles[i]=cycles[i]*kilo;
+    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
 
 
     LL_model_BM model_cooldown(size);
@@ -172,6 +187,7 @@ void ceplak_cooldown(double ratio, std::string filename){
             model_cooldown.calculate_polar_order();
             logger_cooldown.log_params();
         }
+        if (sim_id==0) std::cout << "cooldown: " << i << "/" << temperatures_count << "\r" << std::flush;
     }
     
 }
@@ -194,13 +210,13 @@ void reproduce_ceplak(){
 
     #pragma omp parallel for
     for (int i=0; i<12; i++){
-        ceplak_heatup(ratios[i], filenames_heatup[i]);
+        ceplak_heatup(ratios[i], filenames_heatup[i], i);
     }
 
 
     #pragma omp parallel for
     for (int i=0; i<12; i++){
-        ceplak_cooldown(ratios[i], filenames_cooldown[i]);
+        ceplak_cooldown(ratios[i], filenames_cooldown[i], i);
     }
 
 
