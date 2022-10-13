@@ -29,6 +29,7 @@ LL_model_BM::LL_model_BM(int n) : n(n){
     
     generator.seed(time(NULL));
     random_I = std::uniform_int_distribution <int>(0,n*n*n-1);
+    random_neighbor = std::uniform_int_distribution<int>(0, 5);
     p = std::uniform_real_distribution<double>(0,1);
 }
 
@@ -212,7 +213,15 @@ void LL_model_BM::BarkerWatts_cycle(){
     cycle++;
 }
 
-bool LL_model_BM::switch_move(){
+void LL_model_BM::swap_cycle(){
+    int accepted = 0;
+    for (int i=0; i<n*n*n; i++){
+        if (swap_move()) accepted++;
+    }
+    swap_acceptance_rate = (double) accepted / (n*n*n);
+}
+
+bool LL_model_BM::swap_move(){
     //select a random site and attempt to switch with a random neighbor site
     int I = random_I(generator);
     neighbors(I);
@@ -226,7 +235,7 @@ bool LL_model_BM::switch_move(){
     double Eold = E_neighbors(I) + E_neighbors(J);
 
     //switch the two sites
-    switch_sites(I, J);
+    swap_sites(I, J);
 
     //calculate the new energy of the pair
     double Enew = E_neighbors(I) + E_neighbors(J);
@@ -237,14 +246,14 @@ bool LL_model_BM::switch_move(){
     if (Enew > 0){
         if (p(generator) > exp(-beta*deltaE)){
             //revert to previous config
-            switch_sites(I, J);
+            swap_sites(I, J);
             return false;
         }
     }
     return true;
 }
 
-void LL_model_BM::switch_sites(int I, int J){
+void LL_model_BM::swap_sites(int I, int J){
     
     double temp[2][3];
 
@@ -317,10 +326,7 @@ void LL_model_BM::initialize_lattice_parallel(){
 void LL_model_BM::thermalize_BarkerWatts(int N){
     //thermalizes the lattice using the BarkerWatts cycle
     for (int i = 0; i<N; i++){
-        int acc=0;
         BarkerWatts_cycle();
-        acceptance_rate = (double) acc / (n*n*n);
-        adjust_rotation_angle();
     }
 }
 

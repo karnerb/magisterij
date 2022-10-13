@@ -1,10 +1,9 @@
 #include "llmodel.h"
 #include "llmodelBM.h"
 #include "logger.h"
-#include "tests.cpp"
 #include <iostream>
 #include <chrono>
-
+#include "swap_tests.cpp"
 
 
 /* void temperature_dependence(){
@@ -175,11 +174,11 @@ int main(void){
     //temperature_dependence_cluster(30, 30, 1.129, 1.115, "cluster30cooldown.txt", "isotropic");
     
     auto start = std::chrono::high_resolution_clock::now();
-    reproduce_ceplak();
+    swap_moves_thermalization("swap_test.txt");
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::minutes>(end-start);
     std::cout << "time: " << duration.count() << "minutes\n";
 
-
+    return 0;
 
 }

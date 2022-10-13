@@ -10,11 +10,11 @@ class LL_model_BM{
         int* neighbors_list;
         double E;
         double polar_order;
-        double beta, rotation_angle, acceptance_rate;
+        double beta, rotation_angle, acceptance_rate, swap_acceptance_rate;
         std::default_random_engine generator;
         std::uniform_int_distribution<int> random_I;
         std::uniform_real_distribution<double> p;
-
+         std::uniform_int_distribution<int> random_neighbor;
         LL_model_BM(int n);
         
         void calculate_polar_order();
@@ -32,8 +32,9 @@ class LL_model_BM{
         void BarkerWatts_cycle();
         void adjust_rotation_angle();
 
-        bool switch_move();
-        void switch_sites(int I, int J);
+        bool swap_move();
+        void swap_sites(int I, int J);
+        void swap_cycle();
 
         void initialize_lattice_parallel();
         void initialize_lattice_random();
