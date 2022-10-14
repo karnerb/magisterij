@@ -12,7 +12,7 @@ template <typename T> class Logger{
 
     file.open("output/" + filename);
     if (!file.is_open()) std::cout << "Error opening output file!\n";
-    file << "n: " << model.n << "\n";
+    file << model.n << " " << model.count_broken_molecules() << "\n";
     file << "beta" << " " << "cycle" << " " << "acceptance_rate" << " " << "Energy" << " "
         << "P2_00" << " " << "P2_01" << " " << "P2_02" << " "
         << "P2_10" << " " << "P2_11" << " " << "P2_12" << " "

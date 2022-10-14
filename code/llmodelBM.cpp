@@ -219,6 +219,7 @@ void LL_model_BM::swap_cycle(){
         if (swap_move()) accepted++;
     }
     swap_acceptance_rate = (double) accepted / (n*n*n);
+    //std::cout << swap_acceptance_rate << "\r" << std::flush;
 }
 
 bool LL_model_BM::swap_move(){
@@ -227,7 +228,7 @@ bool LL_model_BM::swap_move(){
     neighbors(I);
     //choose a random neighbor
     
-    int neighbor = floor(p(generator)*6.0);
+    int neighbor = random_neighbor(generator);
     if (neighbor > 6 || neighbor < 0) std::cout << "BIG PROBLEM";
     int J = neighbors_list[neighbor];
 
@@ -240,16 +241,24 @@ bool LL_model_BM::swap_move(){
     //calculate the new energy of the pair
     double Enew = E_neighbors(I) + E_neighbors(J);
 
-    double deltaE = Enew-Eold;
+    double deltaE = (Enew-Eold);
     //accept if deltaE < 0 otherwise Metropolis criterion
 
-    if (Enew > 0){
+    if (deltaE > 0){
         if (p(generator) > exp(-beta*deltaE)){
             //revert to previous config
             swap_sites(I, J);
             return false;
         }
     }
+/*    for (int i=0; i<30; i++){
+        neighbors(I);
+        BarkerWatts_move(I);
+        for (int j=0; j<6; j++) BarkerWatts_move(neighbors_list[j]);
+        neighbors(J);
+        BarkerWatts_move(J);
+        for (int j=0; j<6; j++) BarkerWatts_move(neighbors_list[j]);
+    }*/
     return true;
 }
 

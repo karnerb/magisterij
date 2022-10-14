@@ -2,8 +2,8 @@
 #include "llmodel.h"
 #include "llmodelBM.h"
 #include "logger.h"
-#define size 10
-#define kilo 100
+#define size 6
+#define kilo 10
 
 void ceplak_swap_heatup(double ratio, std::string filename, int sim_id){
 
@@ -32,9 +32,9 @@ void ceplak_swap_heatup(double ratio, std::string filename, int sim_id){
 
 
     LL_model_BM model_heatup(size);
-    Logger<LL_model_BM> logger_heatup(filename, model_heatup);
     model_heatup.initialize_lattice_parallel();
     model_heatup.break_molecules((int) (ratio*size*size*size));
+    Logger<LL_model_BM> logger_heatup(filename, model_heatup);
     model_heatup.set_beta(1.0/temperatures[0]);
     model_heatup.thermalize_BarkerWatts(cycles[0]*5);
 
@@ -45,10 +45,12 @@ void ceplak_swap_heatup(double ratio, std::string filename, int sim_id){
         model_heatup.cycle = 0;
         for (int j=0; j<cycles[i]; j++){
             model_heatup.BarkerWatts_cycle();
+            model_heatup.swap_cycle();
             model_heatup.calculate_P2();
             model_heatup.H();
             model_heatup.calculate_polar_order();
             logger_heatup.log_params();
+            model_heatup.cycle++;
         }
          if (sim_id==0) std::cout << "heatup: " << i << "/" << temperatures_count << "\r" << std::flush;
     }
@@ -82,9 +84,9 @@ void ceplak_swap_cooldown(double ratio, std::string filename, int sim_id){
 
 
     LL_model_BM model_cooldown(size);
-    Logger<LL_model_BM> logger_cooldown(filename, model_cooldown);
     model_cooldown.initialize_lattice_random();
     model_cooldown.break_molecules((int) (ratio*size*size*size));
+    Logger<LL_model_BM> logger_cooldown(filename, model_cooldown);
     model_cooldown.set_beta(1.0/temperatures[temperatures_count-1]);
     model_cooldown.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
 
@@ -94,10 +96,12 @@ void ceplak_swap_cooldown(double ratio, std::string filename, int sim_id){
         model_cooldown.cycle=0;
         for (int j=0; j<cycles[i]; j++){
             model_cooldown.BarkerWatts_cycle();
+            model_cooldown.swap_cycle();
             model_cooldown.calculate_P2();
             model_cooldown.H();
             model_cooldown.calculate_polar_order();
             logger_cooldown.log_params();
+            model_cooldown.cycle++;
         }
         if (sim_id==0) std::cout << "cooldown: " << i << "/" << temperatures_count << "\r" << std::flush;
     }
@@ -110,15 +114,15 @@ void ceplak_with_swaps(){
                          0.0185, 0.0278, 0.0370,
                          0.0463, 0.0556, 0.0741};
     
-    std::string filenames_heatup[12] = {"ceplak_heatup_r_0.00.txt", "ceplak_heatup_r_0.19.txt", "ceplak_heatup_r_0.37.txt",
-                                        "ceplak_heatup_r_0.74.txt", "ceplak_heatup_r_0.93.txt", "ceplak_heatup_r_1.11.txt",
-                                        "ceplak_heatup_r_1.85.txt", "ceplak_heatup_r_2.78.txt", "ceplak_heatup_r_3.70.txt",
-                                        "ceplak_heatup_r_4.63.txt", "ceplak_heatup_r_5.56.txt", "ceplak_heatup_r_7.41.txt"};
+    std::string filenames_heatup[12] = {"ceplak_heatup_swap_r_0.00.txt", "ceplak_heatup_swap_r_0.19.txt", "ceplak_heatup_swap_r_0.37.txt",
+                                        "ceplak_heatup_swap_r_0.74.txt", "ceplak_heatup_swap_r_0.93.txt", "ceplak_heatup_swap_r_1.11.txt",
+                                        "ceplak_heatup_swap_r_1.85.txt", "ceplak_heatup_swap_r_2.78.txt", "ceplak_heatup_swap_r_3.70.txt",
+                                        "ceplak_heatup_swap_r_4.63.txt", "ceplak_heatup_swap_r_5.56.txt", "ceplak_heatup_swap_r_7.41.txt"};
 
-    std::string filenames_cooldown[12] = {"ceplak_cooldown_r_0.00.txt", "ceplak_cooldown_r_0.19.txt", "ceplak_cooldown_r_0.37.txt",
-                                          "ceplak_cooldown_r_0.74.txt", "ceplak_cooldown_r_0.93.txt", "ceplak_cooldown_r_1.11.txt",
-                                          "ceplak_cooldown_r_1.85.txt", "ceplak_cooldown_r_2.78.txt", "ceplak_cooldown_r_3.70.txt",
-                                          "ceplak_cooldown_r_4.63.txt", "ceplak_cooldown_r_5.56.txt", "ceplak_cooldown_r_7.41.txt"};
+    std::string filenames_cooldown[12] = {"ceplak_cooldown_swap_r_0.00.txt", "ceplak_cooldown_swap_r_0.19.txt", "ceplak_cooldown_swap_r_0.37.txt",
+                                          "ceplak_cooldown_swap_r_0.74.txt", "ceplak_cooldown_swap_r_0.93.txt", "ceplak_cooldown_swap_r_1.11.txt",
+                                          "ceplak_cooldown_swap_r_1.85.txt", "ceplak_cooldown_swap_r_2.78.txt", "ceplak_cooldown_swap_r_3.70.txt",
+                                          "ceplak_cooldown_swap_r_4.63.txt", "ceplak_cooldown_swap_r_5.56.txt", "ceplak_cooldown_swap_r_7.41.txt"};
 
     #pragma omp parallel for
     for (int i=0; i<12; i++){
@@ -136,10 +140,10 @@ void ceplak_with_swaps(){
 void swap_moves_thermalization(std::string filename){
     int temperatures_count = 5;
     LL_model_BM model(size);
-    Logger<LL_model_BM> logger(filename, model);
-    double ratio = 0.00;
+    double ratio = 0.50;
     model.initialize_lattice_parallel();
     model.break_molecules((int) (ratio*size*size*size));
+    Logger<LL_model_BM> logger(filename, model);
     double temperatures[6] = {1.0, 1.05, 1.0925, 1.1125, 1.20};
     model.set_beta(1.0/temperatures[0]);
     model.thermalize_BarkerWatts(1000);
@@ -147,15 +151,15 @@ void swap_moves_thermalization(std::string filename){
 
     for (int i=0; i<temperatures_count; i++){
         model.set_beta(1.0/temperatures[i]);
-        model.thermalize_BarkerWatts(1000);
-        int swap_cycles = 1000;
+        model.thermalize_BarkerWatts(100);
+        int swap_cycles = 100;
         model.cycle = 0;
         for (int j=0; j<swap_cycles; j++){
-        model.H();
-        model.calculate_P2();
-        logger.log_params();
-        model.swap_cycle();
-        model.cycle++;
+            model.H();
+            model.calculate_P2();
+            logger.log_params();
+            model.swap_cycle();
+            model.cycle++;
         }
     }
 }
