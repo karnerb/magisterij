@@ -1,16 +1,20 @@
 #include "llmodelBM.h"
-
+#include <algorithm>
 
 void LL_model_BM::shuffle_I(){
     //randomly shuffles elements of shuffled_I[n*n*n]
-    int temp, j;
+    /*    int temp, j;
     for (int i=n*n*n-1; i>0; i--){
         temp=shuffled_I[i];
         j = random_I(generator);
         shuffled_I[i]=shuffled_I[j];
         shuffled_I[j]=temp;
     }
+    */
+   std::random_shuffle(&shuffled_I[0], &shuffled_I[n*n*n-1]);
 }
+
+
 
 bool LL_model_BM::BarkerWatts_move(int I){    
     //save the previous config
