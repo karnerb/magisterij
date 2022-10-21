@@ -1,8 +1,6 @@
-#include "llmodelBM.h"
-#include "logger.h"
 #include <iostream>
 #include <chrono>
-#include "swap_tests_r_0.5.cpp"
+#include "tests/swap_tests_r_0.5.cpp"
 
 int main(void){
     
