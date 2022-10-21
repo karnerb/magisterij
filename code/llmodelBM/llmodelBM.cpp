@@ -93,13 +93,27 @@ double LL_model_BM::E_neighbors(int I){
     return sum;
 }
 
-void LL_model_BM::H(){
+/*void LL_model_BM::H(){
     //sums E_neighbors over all lattice sites
     double sum=0;
     for (int I=0;  I<n*n*n; I++){
         sum+=E_neighbors(I);
     }
     E = 0.5*sum/(n*n*n);
+}*/
+
+void LL_model_BM::H(){
+    double sum=0;
+    
+    for (int k=0; k<n; k++){
+        for (int j=0; j<n; j++){
+            for (int i=0; i<n; i=i+2){
+                int I =  i+(j+k)%2 + n*j + n*n*k; 
+                sum+=E_neighbors(I);
+            }
+        }
+    }
+    E=sum;
 }
 
 void LL_model_BM::calculate_P2(){
