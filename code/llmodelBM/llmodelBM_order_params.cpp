@@ -4,15 +4,14 @@ void LL_model_BM::count_neighbors_of_same_kind(){
     int count=0;
     for (int i=0; i<n*n*n; i++){
         if (broken[i]){
-            neighbors(i);
             for (int j=0; j<6; j++){
-                if (broken[neighbors_list[j]]){
+                if (broken[neighbors_list[i][j]]){
                     count++;
             }
             }
         }
     }
-    broken_neighbors=count;
+    broken_neighbors=count/2;
 }
 
 void LL_model_BM::calculate_polar_order(){

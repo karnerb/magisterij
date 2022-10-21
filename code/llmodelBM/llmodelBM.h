@@ -6,7 +6,8 @@
 class LL_model_BM{
     public:
         
-        int *shuffled_I, *neighbors_list;
+        int **neighbors_list;
+        int *shuffled_I;
         double ***spins, **P2;
         bool *broken;
         int n, cycle, broken_neighbors;
@@ -26,7 +27,6 @@ class LL_model_BM{
         
         //basic functions
         void set_beta(double beta);
-        void neighbors(int I);
         double dot(int I, int i, int J, int j);
         void rotation3D(double* vector, double n0, double n1, double n2, double gama);
 

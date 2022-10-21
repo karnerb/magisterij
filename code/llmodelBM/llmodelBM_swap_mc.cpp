@@ -3,12 +3,12 @@
 bool LL_model_BM::swap_move(){
     //select a random site and attempt to switch with a random neighbor site
     int I = random_I(generator);
-    neighbors(I);
+    
     //choose a random neighbor
     
     int neighbor = random_neighbor(generator);
     //if (neighbor > 6 || neighbor < 0) std::cout << "BIG PROBLEM";
-    int J = neighbors_list[neighbor];
+    int J = neighbors_list[I][neighbor];
 
     //store the current energy of the pair
     double Eold = E_neighbors(I) + E_neighbors(J);
