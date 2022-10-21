@@ -8,6 +8,7 @@ class LL_model_BM{
         double ***spins, **P2;
         bool *broken;
         int* neighbors_list;
+        int broken_neighbors;
         double E;
         double polar_order;
         double beta, rotation_angle, acceptance_rate, swap_acceptance_rate;
@@ -47,5 +48,6 @@ class LL_model_BM{
         void break_molecules(int count);
 
         int count_broken_molecules();
+        int count_neighbors_of_same_kind();
 
 };

@@ -17,7 +17,8 @@ template <typename T> class Logger{
         << "P2_00" << " " << "P2_01" << " " << "P2_02" << " "
         << "P2_10" << " " << "P2_11" << " " << "P2_12" << " "
         << "P2_20" << " " << "P2_21" << " " << "P2_22" << " "
-        << "polar_order"
+        << "polar_order" << " "
+        << "swap_acceptance_rate" 
         << "\n"; 
 
     }

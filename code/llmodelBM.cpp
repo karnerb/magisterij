@@ -14,6 +14,8 @@ LL_model_BM::LL_model_BM(int n) : n(n){
     P2 = new double* [dim];
     broken = new bool [n*n*n];
     neighbors_list = new int[n_neighbors];
+    broken_neighbors = 0;
+    swap_acceptance_rate = 0;
     shuffled_I = new int[n*n*n];
     for (int i=0; i<dim; i++) P2[i] = new double [dim];
     for (int I=0; I<n*n*n; I++){
@@ -222,6 +224,8 @@ void LL_model_BM::swap_cycle(){
     //std::cout << swap_acceptance_rate << "\r" << std::flush;
 }
 
+
+
 bool LL_model_BM::swap_move(){
     //select a random site and attempt to switch with a random neighbor site
     int I = random_I(generator);
@@ -395,6 +399,21 @@ void LL_model_BM::align_molecule(int I){
     spins[I][1][2] = temp[2]/norm;
 
     broken[I] = false;
+}
+
+void LL_model_BM::count_neighbors_of_same_kind(){
+    int count=0;
+    for (int i=0; i<n*n*n; i++){
+        if (broken[i]){
+            neighbors(i);
+            for (int j=0; j<6; j++){
+                if (broken[neighbors_list[j]]){
+                    count++;
+            }
+            }
+        }
+    }
+    broken_neighbors=count;
 }
 
 void LL_model_BM::calculate_polar_order(){

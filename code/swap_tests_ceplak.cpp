@@ -137,6 +137,7 @@ void ceplak_with_swaps(){
 }
 
 
+
 void swap_moves_thermalization(std::string filename){
     int temperatures_count = 5;
     LL_model_BM model(size);
