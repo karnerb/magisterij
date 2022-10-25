@@ -5,10 +5,11 @@ template <typename T> class Logger{
     public:
     T& model;
     std::ofstream file;
+    int i_lattice=0;
+    std::string filename;
 
     
-    Logger(std::string filename, T& model) : model(model){
-
+    Logger(std::string name, T& model) : model(model), filename(name){
     file.open("output/" + filename);
     if (!file.is_open()) std::cout << "Error opening output file!\n";
     file << model.metadata();
@@ -28,4 +29,22 @@ template <typename T> class Logger{
         << model.polar_order
         << "\n"; */
     }
+
+    void output_lattice_configuration(){
+        std::ofstream lattice_file;
+        std::string name = filename;
+        lattice_file.open("output/lattice_config/" + name.erase(name.length()-4) + "_lattice_" + std::to_string(i_lattice) + ".txt");
+        lattice_file << 1.0/model.beta << " " << model.n << " " 
+                     << model.count_broken_molecules() << " " 
+                     << model.broken_neighbors << " " 
+                     << model.broken_cluster_count <<
+                      "\n";
+        for (int i=0; i<model.n*model.n*model.n; i++){
+            lattice_file << model.broken[i] << "\n";
+        }
+        lattice_file.close();
+        i_lattice++;
+    }
+
+
 };
