@@ -10,7 +10,7 @@ class LL_model_BM{
         int *shuffled_I;
         double ***spins, **P2;
         bool *broken;
-        int n, cycle, broken_neighbors;
+        int n, cycle, broken_neighbors, broken_cluster_count;
         double E, polar_order, beta, rotation_angle, acceptance_rate, swap_acceptance_rate;
         
         std::default_random_engine generator;
@@ -56,9 +56,15 @@ class LL_model_BM{
         void break_molecule(int I);
         void align_molecule(int I);
         void break_molecules(int count);
+        void make_one_cluster(int count);
+        void make_two_clusters(int count);
+        void checkerboard_pattern();
+        void make_empty_cube_cluster(int a);
+        void make_L_shaped_cluster(int a, int b);
 
         //additional order parameters
         void calculate_polar_order();
+        void cluster_count_and_size();
         int count_broken_molecules();
         
 };

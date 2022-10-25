@@ -1,5 +1,6 @@
 #include "llmodelBM.h"
 #include <iostream>
+#include <cmath>
 
 void LL_model_BM::break_molecules(int count){
     //breaks int count molecules
@@ -40,9 +41,6 @@ void LL_model_BM::initialize_lattice_parallel(){
 
     }        
 }
-
-
-
 
 void LL_model_BM::break_molecule(int I){
 
@@ -100,4 +98,83 @@ void LL_model_BM::align_molecule(int I){
     spins[I][1][2] = temp[2]/norm;
 
     broken[I] = false;
+}
+
+
+void LL_model_BM::make_one_cluster(int a){
+    //creates a cube of volume a^3 of broken sites
+    for (int I=0; I<n*n*n; I++) broken[I]=false;
+    for (int k=0; k<a; k++){
+        for (int j=0; j<a; j++){
+            for (int i=0; i<a; i++){
+                int I = i+j*n+k*n*n;
+                broken[I]=true;
+            }
+        }
+    }
+}
+
+void LL_model_BM::make_two_clusters(int a){
+    //creates two cubes of volume a^3 of broken sites. a should be less or equal to size/2.
+    for (int I=0; I<n*n*n; I++) broken[I]=false;
+    for (int k=0; k<a; k++){
+        for (int j=0; j<a; j++){
+            for (int i=0; i<a; i++){
+                int I = i+j*n+k*n*n;
+                broken[I]=true;
+            }
+        }
+    }
+    
+    for (int k=0; k<a; k++){
+        for (int j=0; j<a; j++){
+            for (int i=0; i<a; i++){
+                int I = (n-1-i)+(n-1-j)*n+(n-1-k)*n*n;
+                broken[I]=true;
+            }
+        }
+    }
+}
+
+void LL_model_BM::checkerboard_pattern(){
+    //creates a checkerboard pattern of broken sites
+    for (int I=0; I<n*n*n; I++) broken[I] = false;
+    for (int k=0; k<n; k++){
+        for (int j=0; j<n; j++){
+            for (int i=0; i<n; i=i+2){
+                int I =  i+(j+k)%2 + n*j + n*n*k;
+                broken[I]=true;
+            }
+        }
+    }
+}
+
+void LL_model_BM::make_empty_cube_cluster(int a){
+    //creates an "empty cube" with side a of broken sites
+    for (int I=0; I<n*n*n; I++) broken[I] = false;
+
+    for (int k=0; k<a; k++){
+        for (int j=0; j<a; j++){
+            for (int i=0; i<a; i++){
+                int I = i+j*n+k*n*n;
+                broken[I]=true;
+            }
+        }
+    }
+
+    for (int k=1; k<a-1; k++){
+        for (int j=1; j<a-1; j++){
+            for (int i=1; i<a-1; i++){
+                int I = i+j*n+k*n*n;
+                broken[I]=false;
+            }
+        }
+    }
+}
+
+void LL_model_BM::make_L_shaped_cluster(int a, int b){
+    //creates an L shaped cluster of broken sites with arm lengths a, b 
+    for (int I=0; I<n*n*n; I++) broken[I] = false;
+    for (int i=0; i<a; i++) broken[i] = true;
+    for (int i=0; i<b; i++) broken[n*n*i] = true;
 }

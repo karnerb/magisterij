@@ -11,6 +11,7 @@ LL_model_BM::LL_model_BM(int n) : n(n){
     broken = new bool [n*n*n];
     neighbors_list = new int*[n*n*n];
     broken_neighbors = 0;
+    broken_cluster_count = 0;
     swap_acceptance_rate = 0;
     shuffled_I = new int[n*n*n];
     for (int i=0; i<3; i++) P2[i] = new double [3];
@@ -118,7 +119,7 @@ void LL_model_BM::H(){
             }
         }
     }
-    E=sum;
+    E=sum/(n*n*n);
 }
 
 void LL_model_BM::calculate_P2(){

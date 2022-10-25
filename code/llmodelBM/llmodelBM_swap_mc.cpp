@@ -29,14 +29,6 @@ bool LL_model_BM::swap_move(){
             return false;
         }
     }
-/*    for (int i=0; i<30; i++){
-        neighbors(I);
-        BarkerWatts_move(I);
-        for (int j=0; j<6; j++) BarkerWatts_move(neighbors_list[j]);
-        neighbors(J);
-        BarkerWatts_move(J);
-        for (int j=0; j<6; j++) BarkerWatts_move(neighbors_list[j]);
-    }*/
     return true;
 }
 
@@ -44,6 +36,12 @@ bool LL_model_BM::swap_move(){
 void LL_model_BM::swap_sites(int I, int J){
     
     double temp[2][3];
+    bool temp2;
+
+    temp2 = broken[I];
+    broken[I]=broken[J];
+    broken[J]=temp2;
+
 
     temp[0][0] = spins[I][0][0];
     temp[0][1] = spins[I][0][1];
