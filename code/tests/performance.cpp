@@ -1,10 +1,11 @@
 #include <chrono>
 #include <iostream>
 #include "../llmodelBM/llmodelBM.h"
+#define size 30
 
-void performance_test(){
+void run(){
     //time individual functions
-    LL_model_BM model(30);
+    LL_model_BM model(size);
     model.initialize_lattice_random();
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -49,6 +50,19 @@ void performance_test(){
     end = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
     std::cout << "100 swap_cycle time: " << duration.count() << "ms\n";
+
+    start = std::chrono::high_resolution_clock::now();
+    model.break_molecules(size*size*size/2);
+    for (int i=0; i<100; i++) model.cluster_count_and_size();
+    end = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
+    std::cout << "100 cluster_count_and_size time: " << duration.count() << "ms\n";
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i=0; i<100; i++) model.calculate_polar_order();
+    end = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
+    std::cout << "100 calculate polar order time: " << duration.count() << "ms\n";
 
 
 
