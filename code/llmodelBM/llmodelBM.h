@@ -56,8 +56,8 @@ class LL_model_BM{
         void break_molecule(int I);
         void align_molecule(int I);
         void break_molecules(int count);
-        void make_one_cluster(int count);
-        void make_two_clusters(int count);
+        void make_one_cluster(int a);
+        void make_two_clusters(int a);
         void checkerboard_pattern();
         void make_empty_cube_cluster(int a);
         void make_L_shaped_cluster(int a, int b);

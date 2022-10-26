@@ -14,7 +14,8 @@ std::string LL_model_BM::names(){
         + "P2_10" + space + "P2_11" + space + "P2_12" + space
         + "P2_20" + space + "P2_21" + space + "P2_22" + space
         + "polar_order" + space + "same_neighbors" + space
-        + "swap_acceptance_rate" 
+        + "swap_acceptance_rate" + space
+        + "broken_cluster_count" 
         + "\n";
         return names;
 }
@@ -25,7 +26,8 @@ std::ostream& operator <<(std::ostream& os, const LL_model_BM& model){
         << model.P2[1][0] << " " << model.P2[1][1] << " " << model.P2[1][2] << " "
         << model.P2[2][0] << " " << model.P2[2][1] << " " << model.P2[2][2] << " "
         << model.polar_order << " " << model.broken_neighbors << " "
-        << model.swap_acceptance_rate
+        << model.swap_acceptance_rate << " " 
+        << model.broken_cluster_count
         << "\n";
         return os;
 };

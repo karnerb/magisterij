@@ -1,216 +1,278 @@
 #include <thread>
 #include "../llmodelBM/llmodelBM.h"
 #include "../logger/logger.h"
-#define size 10
-#define kilo 10
+#define size 30
+#define temperatures_count 30
 
-void r05_swap_cooldown(double ratio, std::string filename, int sim_id){
+void cooldown_swap(double ratio, double* temperatures, int* cycles, std::string filename, int sim_id){
     
-    int temperatures_count = 52;
-
-    double temperatures[temperatures_count] = {0.01      , 0.05882353, 0.10764706, 0.15647059, 0.20529412,
-       0.25411765, 0.30294118, 0.35176471, 0.40058824, 0.44941176,
-       0.49823529, 0.54705882, 0.59588235, 0.64470588, 0.69352941,
-       0.74235294, 0.79117647, 0.84      , 0.88882353, 0.93764706,
-       0.98647059, 1.03529412, 1.08411765, 1.13294118, 1.18176471,
-       1.23058824, 1.27941176, 1.32823529, 1.37705882, 1.42588235,
-       1.47470588, 1.52352941, 1.57235294, 1.62117647, 1.67      ,
-       1.71882353, 1.76764706, 1.81647059, 1.86529412, 1.91411765,
-       1.96294118, 2.01176471, 2.06058824, 2.10941176, 2.15823529,
-       2.20705882, 2.25588235, 2.30470588, 2.35352941, 2.40235294,
-       2.45117647, 2.5       };
+    LL_model_BM model(size);
+    model.initialize_lattice_parallel();
+    model.break_molecules((int) size*size*size*ratio);
+    Logger<LL_model_BM> logger(filename, model);
+    model.set_beta(1.0/temperatures[temperatures_count-1]);
+    model.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
+    for (int i=0; i<cycles[temperatures_count-1]*5; i++) model.swap_cycle();
     
-    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50};
-
-    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
-
-
-    LL_model_BM model_cooldown(size);
-    model_cooldown.initialize_lattice_random();
-    model_cooldown.break_molecules((int) (ratio*size*size*size));
-    Logger<LL_model_BM> logger_cooldown(filename, model_cooldown);
-    model_cooldown.set_beta(1.0/temperatures[temperatures_count-1]);
-    model_cooldown.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
-
     for (int i=temperatures_count-1; i>=0; i--){
-        model_cooldown.set_beta(1.0/temperatures[i]);
-        model_cooldown.thermalize_BarkerWatts(cycles[i]);
-        model_cooldown.cycle=0;
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
         for (int j=0; j<cycles[i]; j++){
-            model_cooldown.BarkerWatts_cycle();
-            model_cooldown.swap_cycle();
-            model_cooldown.calculate_P2();
-            model_cooldown.H();
-            model_cooldown.calculate_polar_order();
-            logger_cooldown.log_params();
-            model_cooldown.cycle++;
+            model.BarkerWatts_cycle();
+            model.swap_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger.log_params();
+
         }
-        if (sim_id==0) std::cout << "cooldown with swap: " << i << "/" << temperatures_count << "\r" << std::flush;
+        logger.output_lattice_configuration();
+        if (sim_id==0) std::cout << "cooldown with swap: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
     }
-    
 }
 
-
-void r05_cooldown(double ratio, std::string filename, int sim_id){
+void cooldown(double ratio, double* temperatures, int* cycles, std::string filename, int sim_id){
     
-    int temperatures_count = 52;
-
-    double temperatures[temperatures_count] = {0.01      , 0.05882353, 0.10764706, 0.15647059, 0.20529412,
-       0.25411765, 0.30294118, 0.35176471, 0.40058824, 0.44941176,
-       0.49823529, 0.54705882, 0.59588235, 0.64470588, 0.69352941,
-       0.74235294, 0.79117647, 0.84      , 0.88882353, 0.93764706,
-       0.98647059, 1.03529412, 1.08411765, 1.13294118, 1.18176471,
-       1.23058824, 1.27941176, 1.32823529, 1.37705882, 1.42588235,
-       1.47470588, 1.52352941, 1.57235294, 1.62117647, 1.67      ,
-       1.71882353, 1.76764706, 1.81647059, 1.86529412, 1.91411765,
-       1.96294118, 2.01176471, 2.06058824, 2.10941176, 2.15823529,
-       2.20705882, 2.25588235, 2.30470588, 2.35352941, 2.40235294,
-       2.45117647, 2.5        };
     
-    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50};
-
-    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
-
-
-    LL_model_BM model_cooldown(size);
-    model_cooldown.initialize_lattice_random();
-    model_cooldown.break_molecules((int) (ratio*size*size*size));
-    Logger<LL_model_BM> logger_cooldown(filename, model_cooldown);
-    model_cooldown.set_beta(1.0/temperatures[temperatures_count-1]);
-    model_cooldown.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
-
+    LL_model_BM model(size);
+    model.initialize_lattice_parallel();
+    model.break_molecules((int) size*size*size*ratio);
+    Logger<LL_model_BM> logger(filename, model);
+    model.set_beta(1.0/temperatures[temperatures_count-1]);
+    model.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
+    
+    
     for (int i=temperatures_count-1; i>=0; i--){
-        model_cooldown.set_beta(1.0/temperatures[i]);
-        model_cooldown.thermalize_BarkerWatts(cycles[i]);
-        model_cooldown.cycle=0;
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
         for (int j=0; j<cycles[i]; j++){
-            model_cooldown.BarkerWatts_cycle();
-            model_cooldown.calculate_P2();
-            model_cooldown.H();
-            model_cooldown.calculate_polar_order();
-            logger_cooldown.log_params();
-            model_cooldown.cycle++;
+            model.BarkerWatts_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger.log_params();
+           
         }
-        if (sim_id==0) std::cout << "cooldown without swap: " << i << "/" << temperatures_count << "\r" << std::flush;
+        //logger.output_lattice_configuration();
+        if (sim_id==0) std::cout << "cooldown with swap: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
     }
-    
 }
 
-
-void r05_heatup(double ratio, std::string filename, int sim_id){
+void heatup_swap(double ratio, double* temperatures, int* cycles, std::string filename, int sim_id){
     
-    int temperatures_count = 52;
-
-    double temperatures[temperatures_count] = {0.01      , 0.05882353, 0.10764706, 0.15647059, 0.20529412,
-       0.25411765, 0.30294118, 0.35176471, 0.40058824, 0.44941176,
-       0.49823529, 0.54705882, 0.59588235, 0.64470588, 0.69352941,
-       0.74235294, 0.79117647, 0.84      , 0.88882353, 0.93764706,
-       0.98647059, 1.03529412, 1.08411765, 1.13294118, 1.18176471,
-       1.23058824, 1.27941176, 1.32823529, 1.37705882, 1.42588235,
-       1.47470588, 1.52352941, 1.57235294, 1.62117647, 1.67      ,
-       1.71882353, 1.76764706, 1.81647059, 1.86529412, 1.91411765,
-       1.96294118, 2.01176471, 2.06058824, 2.10941176, 2.15823529,
-       2.20705882, 2.25588235, 2.30470588, 2.35352941, 2.40235294,
-       2.45117647, 2.5         };
+    LL_model_BM model(size);
+    model.initialize_lattice_parallel();
+    //model.break_molecules((int) size*size*size*ratio);
+    model.break_molecules(ratio*size*size*size);
+    Logger<LL_model_BM> logger(filename, model);
+    model.set_beta(1.0/temperatures[0]);
+    model.thermalize_BarkerWatts(cycles[0]*5);
+    for (int i=0; i<cycles[0]*5; i++) model.swap_cycle();
     
-    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50};
-
-    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
-
-
-    LL_model_BM model_cooldown(size);
-    model_cooldown.initialize_lattice_parallel();
-    model_cooldown.break_molecules((int) (ratio*size*size*size));
-    Logger<LL_model_BM> logger_cooldown(filename, model_cooldown);
-    model_cooldown.set_beta(1.0/temperatures[0]);
-    model_cooldown.thermalize_BarkerWatts(cycles[0]*5);
-
     for (int i=0; i<temperatures_count; i++){
-        model_cooldown.set_beta(1.0/temperatures[i]);
-        model_cooldown.thermalize_BarkerWatts(cycles[i]);
-        model_cooldown.cycle=0;
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
         for (int j=0; j<cycles[i]; j++){
-            model_cooldown.BarkerWatts_cycle();
-            model_cooldown.calculate_P2();
-            model_cooldown.H();
-            model_cooldown.calculate_polar_order();
-            logger_cooldown.log_params();
-            model_cooldown.cycle++;
+            model.BarkerWatts_cycle();
+            model.swap_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger.log_params();
         }
-        if (sim_id==0) std::cout << "heatup without swap: " << i << "/" << temperatures_count << "\r" << std::flush;
+        logger.output_lattice_configuration();
+        if (sim_id==0) std::cout << "heatup with swap: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
     }
-    
 }
 
-
-void r05_swap_heatup(double ratio, std::string filename, int sim_id){
+void heatup(double ratio, double* temperatures, int* cycles, std::string filename, int sim_id){
     
-    int temperatures_count = 52;
-
-    double temperatures[temperatures_count] = {0.01      , 0.05882353, 0.10764706, 0.15647059, 0.20529412,
-       0.25411765, 0.30294118, 0.35176471, 0.40058824, 0.44941176,
-       0.49823529, 0.54705882, 0.59588235, 0.64470588, 0.69352941,
-       0.74235294, 0.79117647, 0.84      , 0.88882353, 0.93764706,
-       0.98647059, 1.03529412, 1.08411765, 1.13294118, 1.18176471,
-       1.23058824, 1.27941176, 1.32823529, 1.37705882, 1.42588235,
-       1.47470588, 1.52352941, 1.57235294, 1.62117647, 1.67      ,
-       1.71882353, 1.76764706, 1.81647059, 1.86529412, 1.91411765,
-       1.96294118, 2.01176471, 2.06058824, 2.10941176, 2.15823529,
-       2.20705882, 2.25588235, 2.30470588, 2.35352941, 2.40235294,
-       2.45117647, 2.5       };
     
-    int cycles[temperatures_count] = {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
-       50};
-
-    for (int i=0; i<temperatures_count; i++) cycles[i]=cycles[i]*kilo;
-
-
-    LL_model_BM model_cooldown(size);
-    model_cooldown.initialize_lattice_parallel();
-    model_cooldown.break_molecules((int) (ratio*size*size*size));
-    Logger<LL_model_BM> logger_cooldown(filename, model_cooldown);
-    model_cooldown.set_beta(1.0/temperatures[0]);
-    model_cooldown.thermalize_BarkerWatts(cycles[0]*5);
-
+    LL_model_BM model(size);
+    model.initialize_lattice_parallel();
+    model.break_molecules((int) size*size*size*ratio);
+    Logger<LL_model_BM> logger(filename, model);
+    model.set_beta(1.0/temperatures[0]);
+    model.thermalize_BarkerWatts(cycles[0]*5);
+    
     for (int i=0; i<temperatures_count; i++){
-        model_cooldown.set_beta(1.0/temperatures[i]);
-        model_cooldown.thermalize_BarkerWatts(cycles[i]);
-        model_cooldown.cycle=0;
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
         for (int j=0; j<cycles[i]; j++){
-            model_cooldown.BarkerWatts_cycle();
-            model_cooldown.swap_cycle();
-            model_cooldown.calculate_P2();
-            model_cooldown.H();
-            model_cooldown.calculate_polar_order();
-            logger_cooldown.log_params();
-            model_cooldown.cycle++;
+            model.BarkerWatts_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger.log_params();
         }
-        if (sim_id==0) std::cout << "heatup with swap: " << i << "/" << temperatures_count << "\r" << std::flush;
+        //logger.output_lattice_configuration();
+        if (sim_id==0) std::cout << "heatup: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
     }
-    
 }
 
 
-void run_test_r05(){
-    std::thread t1(r05_cooldown, 0.0, "test0c.txt",0);
-    std::thread t2(r05_cooldown, 1.0, "test1c.txt", 1);
-    std::thread t3(r05_heatup, 0.0, "test0h.txt", 1);
-    std::thread t4(r05_heatup, 1.0, "test1h.txt", 1);
+void cooldown_then_heatup_swap(double ratio, double* temperatures, int* cycles, std::string filename1, std::string filename2, int sim_id){
+    
+    LL_model_BM model(size);
+    model.initialize_lattice_parallel();
+    model.break_molecules((int) size*size*size*ratio);
+    Logger<LL_model_BM> logger(filename1, model);
+    Logger<LL_model_BM> logger2(filename2, model);
+    model.set_beta(1.0/temperatures[temperatures_count-1]);
+    model.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
+    for (int i=0; i<cycles[temperatures_count-1]*5; i++) model.swap_cycle();
+    
+    for (int i=temperatures_count-1; i>=0; i--){
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
+        for (int j=0; j<cycles[i]; j++){
+            model.BarkerWatts_cycle();
+            model.swap_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger.log_params();
+
+        }
+        logger.output_lattice_configuration();
+        if (sim_id==0) std::cout << "cooldown with swap: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
+    }
+    for (int i=0; i<temperatures_count; i++){
+
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
+        for (int j=0; j<cycles[i]; j++){
+            model.BarkerWatts_cycle();
+            model.swap_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger2.log_params();
+
+        }
+        logger2.output_lattice_configuration();
+        if (sim_id==0) std::cout << "heatup with swap: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
+    }
+}
+
+
+void cooldown_then_heatup(double ratio, double* temperatures, int* cycles, std::string filename1, std::string filename2, int sim_id){
+    
+    LL_model_BM model(size);
+    model.initialize_lattice_parallel();
+    model.break_molecules((int) size*size*size*ratio);
+    Logger<LL_model_BM> logger(filename1, model);
+    Logger<LL_model_BM> logger2(filename2, model);
+    model.set_beta(1.0/temperatures[temperatures_count-1]);
+    model.thermalize_BarkerWatts(cycles[temperatures_count-1]*5);
+ //   for (int i=0; i<cycles[temperatures_count-1]*5; i++) model.swap_cycle();
+    
+    for (int i=temperatures_count-1; i>=0; i--){
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
+        for (int j=0; j<cycles[i]; j++){
+            model.BarkerWatts_cycle();
+   //         model.swap_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger.log_params();
+
+        }
+        logger.output_lattice_configuration();
+        if (sim_id==0) std::cout << "cooldown with swap: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
+    }
+    for (int i=0; i<temperatures_count; i++){
+
+        model.set_beta(1.0/temperatures[i]);
+        model.thermalize_BarkerWatts(cycles[i]);
+        model.cycle=0;
+        for (int j=0; j<cycles[i]; j++){
+            model.BarkerWatts_cycle();
+ //           model.swap_cycle();
+            model.calculate_P2();
+            model.H();
+            model.calculate_polar_order();
+            model.count_neighbors_of_same_kind();
+            model.cluster_count_and_size();
+            logger2.log_params();
+
+        }
+        logger2.output_lattice_configuration();
+        if (sim_id==0) std::cout << "heatup with swap: " << i << "/" << std::to_string(temperatures_count) << "\r" << std::flush;
+    }
+}
+
+
+
+
+void run(){
+  
+  /*
+    std::thread t1(cooldown, 0.0, "c00.txt",0);
+    std::thread t2(cooldown_swap, 0.0, "c00_swap.txt", 1);
+    std::thread t3(heatup, 0.0, "h00.txt", 1);
+    std::thread t4(heatup_swap, 0.0, "h00_swap.txt", 1);
+
     t1.join();
     t2.join();
     t3.join();
     t4.join();
+
+    */
+    double temperatures[temperatures_count] = {0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1 , 0.11,
+       0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2 , 0.21, 0.22,
+       0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3 };
+    
+    int cycles[temperatures_count] = {500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500,
+       500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500,
+       500, 500, 500, 500};
+
+
+    
+
+    std::thread t5(cooldown_then_heatup, 0.216, temperatures, cycles, "c02.txt", "h02.txt", 1);
+    std::thread t6(cooldown_then_heatup_swap, 0.216, temperatures, cycles, "c02_swap.txt", "h02_swap.txt", 0);
+    //std::thread t7(heatup, 0.216, temperatures, cycles, "h02.txt", 1);
+    //std::thread t8(heatup_swap, 0.216, temperatures, cycles, "h02_swap.txt", 1);
+
+    t5.join();
+    t6.join();
+    //t7.join();
+    //t8.join();
+/*
+
+    std::thread t9(cooldown, 1.0, "c10.txt",0);
+    std::thread t10(cooldown_swap, 1.0, "c10_swap.txt", 1);
+    std::thread t11(heatup, 1.0, "h10.txt", 1);
+    std::thread t12(heatup_swap, 1.0, "h10_swap.txt", 1);
+
+    t9.join();
+    t10.join();
+    t11.join();
+    t12.join();
+*/
 }
 
 
