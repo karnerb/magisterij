@@ -3,7 +3,7 @@
 
 std::string LL_model_BM::metadata(){
     std::string space = " ";
-    std::string metadata = std::to_string(n) + space + std::to_string(count_broken_molecules()) + "\n";
+    std::string metadata = std::to_string(n) + space + std::to_string(count_broken_molecules()) + space + std::to_string(alpha) + "\n";
     return metadata;
 }
 

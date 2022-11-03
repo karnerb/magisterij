@@ -31,18 +31,30 @@ template <typename T> class Logger{
     }
 
     void output_lattice_configuration(){
-        std::ofstream lattice_file;
+        std::ofstream lattice_broken_sites;
+        std::ofstream lattice_configuration;
         std::string name = filename;
-        lattice_file.open("output/lattice_config/" + name.erase(name.length()-4) + "_lattice_" + std::to_string(i_lattice) + ".txt");
-        lattice_file << 1.0/model.beta << " " << model.n << " " 
+        lattice_broken_sites.open("output/lattice_config/" + name.erase(name.length()-4) + "_broken_sites_" + std::to_string(i_lattice) + ".txt");
+        if (!lattice_broken_sites.is_open()) std::cout << "Error opening output file!\n";
+        lattice_configuration.open("output/lattice_config/" + name + "_lattice_config_" + std::to_string(i_lattice) + ".txt");
+        if (!lattice_configuration.is_open()) std::cout << "Error opening output file!\n";
+        lattice_broken_sites << 1.0/model.beta << " " << model.n << " " 
                      << model.count_broken_molecules() << " " 
                      << model.broken_neighbors << " " 
                      << model.broken_cluster_count <<
                       "\n";
         for (int i=0; i<model.n*model.n*model.n; i++){
-            lattice_file << model.broken[i] << "\n";
+            lattice_broken_sites << model.broken[i] << "\n";
+            lattice_configuration << model.spins[i][0][0] << " " 
+                                  << model.spins[i][0][1] << " "
+                                  << model.spins[i][0][2] << " " 
+                                  << model.spins[i][1][0] << " " 
+                                  << model.spins[i][1][1] << " "
+                                  << model.spins[i][1][2] << " " 
+                                  << "\n";
         }
-        lattice_file.close();
+        lattice_broken_sites.close();
+        lattice_configuration.close();
         i_lattice++;
     }
 
