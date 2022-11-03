@@ -107,7 +107,7 @@ void ceplak_swap_cooldown(double ratio, std::string filename, int sim_id){
     
 }
 
-void ceplak_with_swaps(){
+void run(){
     double ratios[12] = {0.0000, 0.0019, 0.0037,
                          0.0074, 0.0093, 0.0111,
                          0.0185, 0.0278, 0.0370,
