@@ -6,6 +6,7 @@
 
 
 LL_model_BM::LL_model_BM(int n) : n(n){
+    alpha = pi/3;
     spins = new double** [n*n*n];
     P2 = new double* [3];
     broken = new bool [n*n*n];

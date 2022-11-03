@@ -12,6 +12,7 @@ class LL_model_BM{
         bool *broken;
         int n, cycle, broken_neighbors, broken_cluster_count;
         double E, polar_order, beta, rotation_angle, acceptance_rate, swap_acceptance_rate;
+        double alpha;
         
         std::default_random_engine generator;
         std::uniform_int_distribution<int> random_I;
