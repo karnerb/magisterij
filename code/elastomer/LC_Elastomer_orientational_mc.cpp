@@ -21,7 +21,7 @@ bool LC_Elastomer::BarkerWatts_move(int I){
     double temp[2][3];
     for (int i=0; i<3; i++){
         temp[0][i] = spins[I][0][i];
-        //temp[1][i] = spins[I][1][i];
+        temp[1][i] = spins[I][1][i];
     }
     
     //save the energy of current config
@@ -39,7 +39,7 @@ bool LC_Elastomer::BarkerWatts_move(int I){
     
     //rotate the spin
     rotation3D(spins[I][0], n0, n1, n2, gama);
-    //rotation3D(spins[I][1], n0, n1, n2, gama);
+    rotation3D(spins[I][1], n0, n1, n2, gama);
         
     //calculate new energy 
     double Enew = E_neighbors(I)+E_coupling(I);
@@ -53,9 +53,9 @@ bool LC_Elastomer::BarkerWatts_move(int I){
             spins[I][0][0] = temp[0][0];
             spins[I][0][1] = temp[0][1];
             spins[I][0][2] = temp[0][2];
-           // spins[I][1][0] = temp[1][0];
-           // spins[I][1][1] = temp[1][1];
-           // spins[I][1][2] = temp[1][2];
+            spins[I][1][0] = temp[1][0];
+            spins[I][1][1] = temp[1][1];
+            spins[I][1][2] = temp[1][2];
             return false;
             }
         } 
