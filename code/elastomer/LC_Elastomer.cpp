@@ -87,10 +87,11 @@ double LC_Elastomer::dot(int I, int i,  int J, int j){
 double LC_Elastomer::E_IJ(int I, int J){
     //interaction energy of sites I, J
     double dot1 = dot(I,0,J,0);
-    double dot2 = dot(I,0,J,1);
-    double dot3 = dot(I,1,J,0);
-    double dot4 = dot(I,1,J,1);
-    return - ( 1.5 * 0.25 * (dot1*dot1+dot2*dot2+dot3*dot3+dot4*dot4) - 0.5);
+    //double dot2 = dot(I,0,J,1);
+    //double dot3 = dot(I,1,J,0);
+    //double dot4 = dot(I,1,J,1);
+    //return - ( 1.5 * 0.25 * (dot1*dot1+dot2*dot2+dot3*dot3+dot4*dot4) - 0.5);
+    return - ( 1.5 * 1.0 * (dot1*dot1) - 0.5);
 }
 
 
@@ -106,7 +107,8 @@ double LC_Elastomer::E_neighbors(int I){
 
 double LC_Elastomer::E_coupling(int I){
     double xi = 0.5;
-    return -xi*Q(lambda)/beta*0.5*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
+    //return -xi*Q(lambda)/beta*0.5*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
+    return -xi*Q(lambda)/beta*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0));
 }
 
 double LC_Elastomer::E_elastic(){

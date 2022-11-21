@@ -4,7 +4,7 @@
 
 
 bool LC_Elastomer::resize_move(){    
-   double max_step = 0.005;
+   double max_step = 0.0085;
    double new_lambda = lambda + (p(generator)-0.5)*max_step;
    while (new_lambda<0) new_lambda = lambda + (p(generator)-0.5)*max_step;
    //calculate old energies
