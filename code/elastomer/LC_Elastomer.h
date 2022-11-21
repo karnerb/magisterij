@@ -3,6 +3,7 @@
 #define pi 3.141592653589793238462
 
 
+
 class LC_Elastomer{
     public:
         
@@ -55,6 +56,8 @@ class LC_Elastomer{
         void BarkerWatts_cycle();
         void thermalize_BarkerWatts(int N);
         void adjust_rotation_angle();
+        void BarkerWatts_cycle2();
+        void BarkerWatts_cycle3();
 
         //swap MC
         bool swap_move();

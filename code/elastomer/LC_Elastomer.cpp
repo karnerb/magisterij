@@ -112,23 +112,16 @@ double LC_Elastomer::E_coupling(int I){
 double LC_Elastomer::E_elastic(){
     
     double N = n*n*n;
-    double alpha = 0.3;
+    double alpha_elastic = 0.3174;
     
-    return N*alpha/beta*(lambda*lambda+2.0/lambda);
+    return N*alpha_elastic/beta*(lambda*lambda+2.0/lambda);
 
 }
 
 void LC_Elastomer::H_neighbors(){
     double sum=0;
     
-    for (int k=0; k<n; k++){
-        for (int j=0; j<n; j++){
-            for (int i=0; i<n; i=i+2){
-                int I =  i+(j+k)%2 + n*j + n*n*k; 
-                sum+=E_neighbors(I);
-            }
-        }
-    }
+    
     Energy_LL_interaction=sum/(n*n*n);
 }
 
