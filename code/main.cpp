@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
-#include "tests/elastomer_basic_test.cpp"
+#include "tests/performance.cpp"
+//#include "tests/elastomer_basic_test.cpp"
 
 
 int main(void){

@@ -6,14 +6,15 @@
 
 
 LC_Elastomer::LC_Elastomer(int n) : n(n){
-    alpha = pi/3;
+    alpha = pi/3.0;
+    rotation_angle = pi/2.0;
+    resize_step=0.0001;
     spins = new double** [n*n*n];
     P2 = new double* [3];
     broken = new bool [n*n*n];
     neighbors_list = new int*[n*n*n];
     broken_neighbors = 0;
     broken_cluster_count = 0;
-    swap_acceptance_rate = 0;
     shuffled_I = new int[n*n*n];
     for (int i=0; i<3; i++) P2[i] = new double [3];
     for (int I=0; I<n*n*n; I++){
@@ -106,7 +107,8 @@ double LC_Elastomer::E_neighbors(int I){
 
 double LC_Elastomer::E_coupling(int I){
     double xi = 0.5;
-    return -xi*Q(lambda)/beta*0.5*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
+    //return -xi*Q(lambda)/beta*0.5*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
+    return Q(lambda)*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
 }
 
 double LC_Elastomer::E_elastic(){
@@ -136,12 +138,15 @@ void LC_Elastomer::H_elastic(){
 }
 
 double LC_Elastomer::Q(double lambda){
+    //ultra slow without -ffast-math
+    
     double L;
     double zeta = lambda*lambda*lambda-1;
     if (-1.0 < zeta && zeta < 0) L = (atanh(sqrt(-zeta))-sqrt(-zeta))/sqrt(-zeta*zeta*zeta);
     else if (zeta==0) L = 1.0/3.0;
     else if (zeta>0) L = (sqrt(zeta)-atan(sqrt(zeta))) / sqrt(zeta*zeta*zeta);
     return (3.0*lambda*lambda*lambda/2.0) * L - 0.5;
+    
 }
 /*
 double LC_Elastomer::Q(double lambda){

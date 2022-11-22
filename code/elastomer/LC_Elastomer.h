@@ -12,7 +12,7 @@ class LC_Elastomer{
         double ***spins, **P2;
         bool *broken;
         int n, cycle, broken_neighbors, broken_cluster_count;
-        double Energy_LL_interaction, Energy_elastic, Energy_coupling, polar_order, beta, rotation_angle, acceptance_rate, swap_acceptance_rate, resize_acceptance_rate;
+        double Energy_LL_interaction, Energy_elastic, Energy_coupling, polar_order, beta, rotation_angle, resize_step, acceptance_rate, resize_acceptance_rate;
         double alpha;
         double lambda;
         double sigma;
@@ -66,6 +66,7 @@ class LC_Elastomer{
 
         //resize MC
         bool resize_move();
+        void adjust_resize_step();
 
         //lattice initialization 
         void initialize_lattice_parallel();

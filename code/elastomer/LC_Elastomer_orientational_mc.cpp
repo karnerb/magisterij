@@ -75,11 +75,12 @@ void LC_Elastomer::BarkerWatts_cycle2(){
 }
 
 void LC_Elastomer::BarkerWatts_cycle(){
+    int accepted = 0;
     for (int k=0; k<n; k++){
         for (int j=0; j<n; j++){
             for (int i=0; i<n; i=i+2){
                 int I =  i+(j+k)%2 + n*j + n*n*k; 
-                BarkerWatts_move(I);
+                if (BarkerWatts_move(I)) accepted++;
                 
             }
         }
@@ -88,27 +89,16 @@ void LC_Elastomer::BarkerWatts_cycle(){
         for (int j=0; j<n; j++){
             for (int i=0; i<n; i=i+2){
                 int I =  (i+(j+k+1)%2 + n*j + n*n*k); 
-                BarkerWatts_move(I);
+                if (BarkerWatts_move(I)) accepted++;
                
             }
         }
     }
+    acceptance_rate = (double) accepted / (n*n*n);
+    adjust_rotation_angle();
+    cycle++;
 }
 
-
-void LC_Elastomer::BarkerWatts_cycle3(){
-    for (int I=0; I<n*n*n; I++){
-        BarkerWatts_move(I);
-    }
-    
-}
-
-void LC_Elastomer::thermalize_BarkerWatts(int N){
-    //thermalizes the lattice using the BarkerWatts cycle
-    for (int i = 0; i<N; i++){
-        BarkerWatts_cycle();
-    }
-}
 
 void LC_Elastomer::adjust_rotation_angle(){
     //adjusts the rotation angle so that approximately half of proposed moves are accepted
