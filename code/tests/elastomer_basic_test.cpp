@@ -5,32 +5,45 @@
 #define size 50
 
 void stretch(double temperature, std::string filename, int s){
+    
     LC_Elastomer model(size);
     Logger<LC_Elastomer> logger(filename, model);
+
     model.initialize_lattice_random();
     model.lambda=1.0;
     model.sigma=0.0;
     model.set_beta(1.0/temperature);
     int steps = 30;
-    int cycles = 100;
+    int cycles = 2000;
+    
     for (int i=0; i<cycles; i++){
         model.BarkerWatts_cycle();
     }
     for (int i=0; i<cycles; i++){
         model.BarkerWatts_cycle();
-        model.resize_move();
+        if (i%50==0){
+            model.adjust_resize_step();
+        }
     }
+
     double sigma_max = 0.03;
+
     for (int i=0; i<steps; i++){
         if (s==0) std::cout << "i: " << i << "\r" << std::flush;
+        
         model.sigma=i*sigma_max/steps;
+
         for (int j=0; j<cycles; j++){
             model.BarkerWatts_cycle();
-            model.resize_move();
+            if (j%10==0) model.adjust_resize_step();
         }
+        if (s==0) std::cout << "resize step: " << model.resize_step << "\n";
+
+        int accepted = 0;
+        model.cycle=0;
         for (int j=0; j<cycles; j++){
             model.BarkerWatts_cycle();
-            model.resize_move();
+            if (model.resize_move()) accepted++;
             if (j%5==0){
                 model.H_neighbors();
                 model.H_elastic();
@@ -39,45 +52,15 @@ void stretch(double temperature, std::string filename, int s){
                 logger.log_params();
             }
         }
+        if (s==0) std::cout << "acc_rate: " << (double) accepted / cycles << "\n";
     }
 }
 
-void acceptance_rate(){
-    LC_Elastomer model(size);
-    double temperature = 1.1450;
-    model.initialize_lattice_random();
-    model.lambda=1.0;
-    model.sigma=0.0;
-    model.set_beta(1.0/temperature);
-    int steps = 30;
-    int cycles = 100;
-    for (int i=0; i<cycles; i++){
-        model.BarkerWatts_cycle();
-    }
-    int accepted = 0;
-    for (int i=0; i<cycles; i++){
-        model.BarkerWatts_cycle();
-        if (model.resize_move()) accepted++;
-    }
-    std::cout << "accepted moves during thermalization: " << accepted << "\n";
-    double sigma_max = 0.03;
-    for (int i=0; i<steps; i++){
-        model.sigma=i*sigma_max/steps;
-        for (int j=0; j<cycles; j++){
-            model.BarkerWatts_cycle();
-            model.resize_move();
-        }
-        accepted=0;
-        for (int j=0; j<cycles; j++){
-            model.BarkerWatts_cycle();
-            if (model.resize_move()) accepted++;
-        }
-    std::cout << "accepted moves step " << i << "acc: " << accepted << "\n";
-    }
-}
+
 void speed(){
     LC_Elastomer model(size);
-    double temperature = 1.1450;
+    model.initialize_lattice_random();
+    model.set_beta(1.0/1.145);
     int cycles = 100;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i=0; i<cycles; i++){
@@ -87,11 +70,13 @@ void speed(){
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
     std::cout << "100 MC cycle: " << duration.count() << "ms\n";
+    std::cout << (double) 100 / duration.count() * 3600.0 << " cycles/h\n";
 
 }
 
 void run(){
     speed();
+    //speed();
     /*double temperatures[7] = {1.135 , 1.1375, 1.14, 1.1425, 1.145 , 1.1475, 1.15};
     std::string filenames[7] = {"elastomer1.135.txt", "elastomer1.1375.txt", "elastomer1.1400.txt", "elastomer1.1425.txt", "elastomer1.1450.txt", "elastomer1.1475.txt", "elastomer1.1500.txt"};
     
