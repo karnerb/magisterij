@@ -59,14 +59,10 @@ class LC_Elastomer{
         void BarkerWatts_cycle2();
         void BarkerWatts_cycle3();
 
-        //swap MC
-        bool swap_move();
-        void swap_sites(int I, int J);
-        void swap_cycle();
-
         //resize MC
         bool resize_move();
         void adjust_resize_step();
+
 
         //lattice initialization 
         void initialize_lattice_parallel();

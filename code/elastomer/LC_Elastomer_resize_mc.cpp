@@ -28,6 +28,7 @@ bool LC_Elastomer::resize_move(){
    return true;
 }
 
+
 void LC_Elastomer::adjust_resize_step(){
     int accepted=0;
     int total = 100;

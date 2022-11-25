@@ -8,7 +8,7 @@
 LC_Elastomer::LC_Elastomer(int n) : n(n){
     alpha = pi/3.0;
     rotation_angle = pi/2.0;
-    resize_step=0.0001;
+    resize_step=0.01;
     spins = new double** [n*n*n];
     P2 = new double* [3];
     broken = new bool [n*n*n];
@@ -55,8 +55,9 @@ LC_Elastomer::LC_Elastomer(int n) : n(n){
         spins[I][1] = new double[3];
 
     }
-    
-    generator.seed(time(NULL));
+    int seed = time(NULL);
+    generator.seed(seed);
+    std::cout << seed << "\n";
     random_I = std::uniform_int_distribution <int>(0,n*n*n-1);
     random_neighbor = std::uniform_int_distribution<int>(0, 5);
     p = std::uniform_real_distribution<double>(0,1);
@@ -107,8 +108,8 @@ double LC_Elastomer::E_neighbors(int I){
 
 double LC_Elastomer::E_coupling(int I){
     double xi = 0.5;
-    //return -xi*Q(lambda)/beta*0.5*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
-    return Q(lambda)*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
+    return -xi*Q(lambda)/beta*0.5*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
+    //return Q(lambda)*(0.5*(3*spins[I][0][2]*spins[I][0][2]-1.0) + 0.5*(3*spins[I][1][2]*spins[I][1][2]-1.0));
 }
 
 double LC_Elastomer::E_elastic(){
@@ -121,8 +122,9 @@ double LC_Elastomer::E_elastic(){
 }
 
 void LC_Elastomer::H_neighbors(){
-    double sum=0;
-    
+    double sum = 0.0;
+    for (int I=0; I<n*n*n; I++) sum=sum+E_neighbors(I);
+    Energy_coupling = sum;
     
     Energy_LL_interaction=sum/(n*n*n);
 }
